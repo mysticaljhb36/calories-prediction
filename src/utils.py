@@ -134,9 +134,13 @@ def transform_imputer(func):
     return imputer_wrapper
 
 
+# filename for csv file name, subdir fie name i.e raw, processed etc
 
-
-
+def data_path(filename: str, subdir, **kwargs) -> pd.DataFrame:
+    """
+    Load a CSV from data/<subdir>/<name>.csv
+    """
+    return subdir / f"{filename}.csv"
 
 
 

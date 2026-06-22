@@ -6,11 +6,12 @@ Created on Sat Jun 20 18:16:34 2026
 """
 import pandas as pd
 import numpy as np
-from paths import dataload_csv, FEATURES_DIR, PROCESSED_DIR
+from paths import FEATURES_DIR, PROCESSED_DIR
+from utils import data_path
 
 
 def read_processed_data(filename:str, subdir) -> pd.DataFrame:
-    return pd.read_csv(dataload_csv(filename, subdir))
+    return pd.read_csv(data_path(filename, subdir))
 
 def feature_creation(processed_data):
     # Pulse × Duration - Total cardiovascular workload
@@ -64,10 +65,12 @@ def feature_creation(processed_data):
     )
     return processed_data
 
+# Save File
+def upload_features():
+    return feature_creation(read_processed_data("processed_data", 
+                                                         PROCESSED_DIR)
+                                     ).to_csv(FEATURES_DIR / "feature_data.csv", index=False)
+    
 
 if __name__ == "__main__":
-    features_data = feature_creation(read_processed_data("processed_data", 
-                                                         PROCESSED_DIR)
-                                     )
-    # Save File
-    features_data.to_csv(FEATURES_DIR / "feature_data.csv", index=False) 
+    upload_features()

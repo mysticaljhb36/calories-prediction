@@ -6,15 +6,15 @@ Created on Sat Jun 20 18:40:49 2026
 """
 
 import pandas as pd
-from utils import load_model
+from utils import load_model, data_path
 from paths import POWER_TRANSFORMER, RF_MODEL
 # Import impulse data from raw subdirectory
-from paths import dataload_csv, FEATURES_DIR
+from paths import FEATURES_DIR
 
 
 
 def read_feature_data(filename:str, subdir) -> pd.DataFrame:
-    return pd.read_csv(dataload_csv(filename, subdir))
+    return pd.read_csv(data_path(filename, subdir))
 
 
 def run_model():
