@@ -13,6 +13,7 @@ dependencies:
   - matplotlib
   - seaborn
   - jupyter
+  - spyder
   - joblib
   - scipy
   - pip

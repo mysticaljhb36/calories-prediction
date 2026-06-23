@@ -317,7 +317,7 @@ calories-prediction/
 ## Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/calories-prediction.git
+git clone https://github.com/mysticaljhb/calories-prediction.git
 
 cd calories-prediction
 ```
