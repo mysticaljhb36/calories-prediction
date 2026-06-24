@@ -12,6 +12,7 @@ from predict import run_model
 
 from paths import PROCESSED_DIR, RESULT_DIR
 from utils import data_path
+from logger import logger
 
 
 # Create module-level logger.
