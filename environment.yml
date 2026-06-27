@@ -10,10 +10,8 @@ dependencies:
   - pandas
   - scikit-learn
   - xgboost
-  - matplotlib
-  - seaborn
   - jupyter
   - spyder
   - joblib
-  - scipy
-  - pip
+  - plotly
+  - shap

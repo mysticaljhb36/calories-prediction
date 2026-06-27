@@ -1,0 +1,13 @@
+feature,importance
+Maxpulse_Duration,0.2799
+Heart_Rate_Load,0.2484
+Duration_Squared,0.1902
+Duration,0.126
+Pulse_Duration,0.1061
+Log_Duration,0.0176
+Pulse,0.007
+Pulse_Squared,0.0059
+Maxpulse,0.0059
+Intensity_Ratio,0.0048
+Pulse_Maxpulse,0.0044
+Pulse_Reserve,0.0038

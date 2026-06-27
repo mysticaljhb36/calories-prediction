@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     logger.info("predict.py execution started.")
 
-    results = run_model()
+    run_model()
 
     logger.info("predict.py execution completed.")
     

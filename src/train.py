@@ -13,13 +13,18 @@ from sklearn.metrics import (
     root_mean_squared_error
 )
 
+import json
+import shap
+from datetime import datetime
 import logging
 import warnings
 from sklearn.exceptions import DataConversionWarning
 
 from feature_engineering import feature_creation
-from paths import RAW_DIR, MODELS_DIR
+from paths import RAW_DIR, MODELS_DIR, REPORTS_DIR
 from utils import data_path, transform_imputer
+# Import and run reusable logger module to create pipeline.log.
+from logger import loggers
 
 # Create module-level logger for training-specific pipeline events.
 logger = logging.getLogger(__name__)
@@ -30,7 +35,15 @@ warnings.filterwarnings(
     category=DataConversionWarning
 )
 
+# --------------------------------------------------
+# Timestamp
+# --------------------------------------------------
+    
+timestamp = datetime.now().strftime("%Y%m%d %H%M%S")
 
+# --------------------------------------------------
+# Load impulse data from raw directory 
+# --------------------------------------------------
 @transform_imputer
 def load_data(filename: str, subdir) -> pd.DataFrame:
     """
@@ -64,7 +77,9 @@ def load_data(filename: str, subdir) -> pd.DataFrame:
 
     return df
 
-
+# --------------------------------------------------
+# Prepare data for training
+# --------------------------------------------------
 def prepare_training_data(df: pd.DataFrame):
     """
     Create model features and split data into train and test sets.
@@ -116,7 +131,9 @@ def prepare_training_data(df: pd.DataFrame):
 
     return X_train, X_test, y_train, y_test
 
-
+# --------------------------------------------------
+# Power Transform Features 
+# --------------------------------------------------
 def transform_features(X_train, X_test):
     """
     Fit the transformer on training data and apply it to test data.
@@ -153,7 +170,9 @@ def transform_features(X_train, X_test):
 
     return X_train_scaled, X_test_scaled, ptransformer
 
-
+# --------------------------------------------------
+# Hyperparameter Tuning 
+# --------------------------------------------------
 def tune_random_forest(X_train_scaled, y_train):
     """
     Tune Random Forest hyperparameters using RandomizedSearchCV.
@@ -179,10 +198,10 @@ def tune_random_forest(X_train_scaled, y_train):
     )
 
     param_grid = {
-        "n_estimators": [10, 15, 20, 30, 60],
+        "n_estimators": [10, 15, 20, 25],
         "max_depth": [None, 3, 5, 10, 20],
         "min_samples_split": [2, 5, 10],
-        "min_samples_leaf": [1, 2, 4],
+        "min_samples_leaf": [1, 2, 3],
         "max_features": ["sqrt", "log2", None],
         "bootstrap": [True, False]
     }
@@ -214,7 +233,9 @@ def tune_random_forest(X_train_scaled, y_train):
 
     return rf_search
 
-
+# --------------------------------------------------
+# Evaluate Model 
+# --------------------------------------------------
 def evaluate_model(y_test, predictions) -> dict:
     """
     Evaluate model predictions using regression metrics.
@@ -237,8 +258,10 @@ def evaluate_model(y_test, predictions) -> dict:
         "RMSE": root_mean_squared_error(y_test, predictions)
     }
 
-
-def train_model():
+# ---------------------------------------------------------------------------
+# Train Model
+# ---------------------------------------------------------------------------
+def train_model(raw_data):
     """
     Run the full model training pipeline.
 
@@ -254,10 +277,6 @@ def train_model():
     logger.info("Model training pipeline started.")
 
     try:
-        raw_data = load_data(
-            "impulse_data",
-            RAW_DIR
-        )
 
         X_train, X_test, y_train, y_test = prepare_training_data(
             raw_data
@@ -310,7 +329,7 @@ def train_model():
 
         logger.info("Model training pipeline completed successfully.")
 
-        return results
+        return results, best_rf
 
     except Exception as error:
         logger.error(
@@ -319,6 +338,184 @@ def train_model():
         raise
 
 
-if __name__ == "__main__":
+# --------------------------------------------------
+# Save shap_importance_.csv
+# --------------------------------------------------
+def save_shap_importance(
+        model,
+        X_train,
+        reports_dir,
+        datetime_obj) -> None:
+    """
+    Save mean absolute SHAP importance.
+    """
 
-    train_model()
+    explainer = shap.TreeExplainer(model)
+
+    shap_values = explainer.shap_values(X_train)
+
+    shap_importance_df = pd.DataFrame({
+        "feature": X_train.columns,
+        "mean_abs_shap":
+            abs(shap_values).mean(axis=0)
+    }).sort_values(
+        by="mean_abs_shap",
+        ascending=False
+    )
+
+    shap_importance_df.round(4).to_csv(
+        reports_dir / f"shap_importance_{datetime_obj}.csv",
+        index=False
+    )
+    
+
+
+# --------------------------------------------------
+# Save feature_importance.csv
+# --------------------------------------------------    
+def save_feature_importance(
+        model,
+        X_train,
+        reports_dir,
+        datetime_obj) -> None:
+    """
+    Save feature importance.
+    """
+
+    feature_importance_df = pd.DataFrame(
+        {
+            "feature": X_train.columns,
+            "importance": model.feature_importances_
+        }
+        ).sort_values(
+            by="importance",
+            ascending=False
+    )
+    
+    feature_importance_df.round(4).to_csv(
+        reports_dir / f"feature_importance_{datetime_obj}.csv",
+        index=False
+    )
+    
+   
+# --------------------------------------------------
+# Save model_metrics_.csv
+# --------------------------------------------------
+def save_model_metrics(
+        datetime_obj,
+        X_train,
+        X_test,
+        reports_dir,
+        **metrics: dict
+        ) -> None:
+    """
+    SUMMARY: Save model importance.
+
+    Returns
+    -------
+    None
+    """
+    metrics_df = pd.DataFrame(
+        {
+            "model": ["RandomForestRegressor"],
+            "r2_score": [metrics['R2']],
+            "mae": [metrics['MAE']],
+            "rmse": [metrics['RMSE']],
+            "train_rows": [len(X_train)],
+            "test_rows": [len(X_test)],
+            "run_timestamp": [datetime_obj]
+        }
+    )
+    
+    metrics_df.round(4).to_csv(
+        reports_dir / f"model_metrics_{datetime_obj}.csv",
+        index=False
+    )
+    
+
+# --------------------------------------------------
+# Save training_summary.json
+# --------------------------------------------------
+def save_training_summary(
+        model: object,
+        X_train,
+        X_test,        
+        reports_dir: str,
+        datetime_obj: object,
+        **metrics: dict
+        ) -> None:
+    training_summary = {
+        "model_name": "RandomForestRegressor",
+        "training_timestamp": datetime_obj,
+        "train_rows": len(X_train),
+        "test_rows": len(X_test),
+        "number_of_features": len(X_train.columns),
+        "features": list(X_train.columns),
+        "metrics": {
+            "r2_score": float(metrics['R2']),
+            "mae": float(metrics['MAE']),
+            "rmse": float(metrics['RMSE'])
+        },
+        "hyperparameters": model.get_params()
+    }
+    
+    with open(
+        reports_dir / f"figures/training_summary_{timestamp}.json",
+        "w"
+    ) as f:
+    
+        json.dump(
+            training_summary,
+            f,
+            indent=4,
+            default=str
+        )
+
+
+
+if __name__ == "__main__":
+    
+    impulse_data = load_data(
+        "impulse_data",
+        RAW_DIR
+    )
+
+    output, best_model = train_model(
+        impulse_data
+    )
+    
+    
+    X_train, X_test, y_train, y_test = prepare_training_data(
+        impulse_data
+    )    
+  
+    save_shap_importance(
+        best_model, 
+        X_train, 
+        REPORTS_DIR,
+        timestamp
+    )
+    
+    save_feature_importance(
+            best_model,
+            X_train,
+            REPORTS_DIR,
+            timestamp
+    )
+    
+    save_model_metrics(
+            timestamp,
+            X_train,
+            X_test,
+            REPORTS_DIR,
+            **output
+    )
+    
+    save_training_summary(
+        best_model,
+        X_train,
+        X_test,        
+        REPORTS_DIR,
+        timestamp,
+        **output
+    )

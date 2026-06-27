@@ -1,0 +1,46 @@
+{
+    "model_name": "RandomForestRegressor",
+    "training_timestamp": "20260627 185804",
+    "train_rows": 135,
+    "test_rows": 34,
+    "number_of_features": 12,
+    "features": [
+        "Duration",
+        "Pulse",
+        "Maxpulse",
+        "Pulse_Duration",
+        "Maxpulse_Duration",
+        "Intensity_Ratio",
+        "Pulse_Maxpulse",
+        "Pulse_Squared",
+        "Duration_Squared",
+        "Pulse_Reserve",
+        "Log_Duration",
+        "Heart_Rate_Load"
+    ],
+    "metrics": {
+        "r2_score": 0.8900107334290883,
+        "mae": 49.763613299097415,
+        "rmse": 110.36555551607438
+    },
+    "hyperparameters": {
+        "bootstrap": false,
+        "ccp_alpha": 0.0,
+        "criterion": "squared_error",
+        "max_depth": null,
+        "max_features": "log2",
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 1,
+        "min_samples_split": 5,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 15,
+        "n_jobs": -1,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+    }
+}

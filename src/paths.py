@@ -7,7 +7,7 @@ from pathlib import Path
 # Project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-print(Path(__file__).resolve())
+print(Path(__file__).resolve().parent.parent)
 
 # Data directory
 REPORT_DIR = PROJECT_ROOT / "reports"
@@ -25,6 +25,7 @@ LOG_DIR = PROJECT_ROOT / "logs"
 MODELS_DIR = PROJECT_ROOT / "models"
 RF_MODEL = MODELS_DIR / "random_forest_model.pkl"
 POWER_TRANSFORMER = MODELS_DIR / "power_transformer.pkl"
+
 
 # Report directory
 REPORTS_DIR = PROJECT_ROOT / "reports"

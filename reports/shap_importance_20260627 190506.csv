@@ -1,0 +1,13 @@
+feature,mean_abs_shap
+Maxpulse_Duration,343.2498
+Heart_Rate_Load,312.5239
+Duration_Squared,248.2165
+Duration,163.9715
+Pulse_Duration,137.0567
+Log_Duration,18.9819
+Maxpulse,7.931
+Pulse,4.182
+Pulse_Reserve,3.9879
+Pulse_Squared,2.7615
+Pulse_Maxpulse,2.6773
+Intensity_Ratio,1.8014

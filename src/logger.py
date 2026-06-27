@@ -52,11 +52,11 @@ logging.basicConfig(
 )
 
 # Create reusable module logger.
-logger = logging.getLogger(__name__)
+loggers = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
 
-    logger.info(
+    loggers.info(
         "Logging configuration initialised successfully."
     )

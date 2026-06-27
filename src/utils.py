@@ -9,8 +9,6 @@ import joblib
 from paths import MODELS_DIR
 
 
-
-
 def transform_imputer(func):
 
     """
@@ -134,14 +132,11 @@ def transform_imputer(func):
     return imputer_wrapper
 
 
-# filename for csv file name, subdir fie name i.e raw, processed etc
-
 def data_path(filename: str, subdir, **kwargs) -> pd.DataFrame:
     """
     Load a CSV from data/<subdir>/<name>.csv
     """
     return subdir / f"{filename}.csv"
-
 
 
 def save_model(model, filename: str) -> None:
@@ -158,11 +153,6 @@ def save_model(model, filename: str) -> None:
 
     print(f"Model saved to: {filepath}")
     
-    
-
-
-
-
 
 def load_model(filename: str):
     """

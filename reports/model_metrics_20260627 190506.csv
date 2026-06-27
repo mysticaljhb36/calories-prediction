@@ -1,0 +1,2 @@
+model,r2_score,mae,rmse,train_rows,test_rows,run_timestamp
+RandomForestRegressor,0.89,49.7636,110.3656,135,34,20260627 190506

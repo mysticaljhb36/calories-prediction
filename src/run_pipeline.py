@@ -3,8 +3,8 @@
 # =============================================================================
 
 import logging
-
 import pandas as pd
+from datetime import date
 
 from data_preprocessing import upload_processed_data
 from feature_engineering import upload_features
@@ -12,7 +12,8 @@ from predict import run_model
 
 from paths import PROCESSED_DIR, RESULT_DIR
 from utils import data_path
-from logger import logger
+# Import and run reusable logger module to create pipeline.log.
+from logger import loggers
 
 
 # Create module-level logger.
@@ -122,8 +123,10 @@ if __name__ == "__main__":
                 "Prediction and dataset lengths differ."
             )
 
+        today = date.today()
+                
         output_path = (
-            RESULT_DIR / "model_output.csv"
+            RESULT_DIR / f"model_output_{today}.csv"
         )
 
         processed_df.to_csv(
